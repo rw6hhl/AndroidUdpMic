@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -102,7 +101,6 @@ public class MicService extends Service {
         }
     }
 
-    // Метод для отправки статуса в MainActivity
     private void sendStatusBroadcast(String statusText) {
         Intent intent = new Intent("MIC_SERVICE_STATUS");
         intent.putExtra("status_text", statusText);

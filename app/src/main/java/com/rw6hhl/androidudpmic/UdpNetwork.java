@@ -1,6 +1,5 @@
 package com.rw6hhl.androidudpmic;
 
-import android.util.Log;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,8 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class UdpNetwork {
-
-    private static final String TAG = "UdpNetwork";
 
     private final int cmdPort;
     private final String targetIp;
@@ -63,12 +60,16 @@ public class UdpNetwork {
                         String cmd = new String(packet.getData(), 0, packet.getLength()).trim().toLowerCase();
                         String ip = packet.getAddress().getHostAddress();
                         
-                        AppLog.add("UdpNetwork: Получена команда '" + cmd + "' от " + ip);
+                        AppLog.add("UdpNetwork: Получена команда '" + cmd + "' от " + ip + ":" + packet.getPort());
                         
                         if (cmd.equals("yes")) {
                             if (listener != null) listener.onStartCommand();
                         } else if (cmd.equals("no")) {
                             if (listener != null) listener.onStopCommand();
+                        } else if (cmd.equals("find_pc_response")) {
+                            AppLog.add("UdpNetwork: Получен ответ с IP компьютера!");
+                        } else {
+                            AppLog.add("UdpNetwork: Неизвестная команда: '" + cmd + "'");
                         }
                     } catch (IOException e) {
                         if (isListening) {

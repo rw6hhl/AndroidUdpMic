@@ -96,10 +96,10 @@ public class MainActivity extends AppCompatActivity {
         String ip = getIpAddress();
         if (ip != null) {
             tvIpAddress.setText("Мой IP: " + ip);
-            AppLog.add("MainActivity: IP = " + ip);
+            AppLog.add("MainActivity: IP получен = " + ip);
         } else {
             tvIpAddress.setText("Мой IP: Не удалось определить");
-            AppLog.add("MainActivity: Не удалось получить IP");
+            AppLog.add("MainActivity: ОШИБКА — IP не получен ни через WifiManager, ни через NetworkInterface");
         }
     }
 
@@ -109,10 +109,18 @@ public class MainActivity extends AppCompatActivity {
             if (wifiManager != null) {
                 int ipInt = wifiManager.getConnectionInfo().getIpAddress();
                 if (ipInt != 0) {
-                    return Formatter.formatIpAddress(ipInt);
+                    String ip = Formatter.formatIpAddress(ipInt);
+                    AppLog.add("MainActivity: IP получен через WifiManager: " + ip);
+                    return ip;
+                } else {
+                    AppLog.add("MainActivity: WifiManager вернул 0 (Wi-Fi не подключен?)");
                 }
+            } else {
+                AppLog.add("MainActivity: WifiManager == null");
             }
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            AppLog.add("MainActivity: Ошибка WifiManager — " + e.getMessage());
+        }
 
         try {
             List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
@@ -120,11 +128,15 @@ public class MainActivity extends AppCompatActivity {
                 List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
                 for (InetAddress addr : addrs) {
                     if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
-                        return addr.getHostAddress();
+                        String ip = addr.getHostAddress();
+                        AppLog.add("MainActivity: IP получен через NetworkInterface (" + intf.getName() + "): " + ip);
+                        return ip;
                     }
                 }
             }
-        } catch (Exception ignored) { }
+        } catch (Exception e) {
+            AppLog.add("MainActivity: Ошибка NetworkInterface — " + e.getMessage());
+        }
 
         return null;
     }
@@ -132,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     private void findPc() {
         new Thread(() -> {
             try {
+                AppLog.add("MainActivity: Отправка широковещательного запроса FIND_PC на 255.255.255.255:51116");
                 DatagramSocket socket = new DatagramSocket();
                 socket.setBroadcast(true);
                 byte[] sendData = "FIND_PC".getBytes();
@@ -140,10 +153,10 @@ public class MainActivity extends AppCompatActivity {
                 socket.send(sendPacket);
                 socket.close();
                 runOnUiThread(() -> tvPcIpHint.setText("Запрос отправлен. Ожидайте IP..."));
-                AppLog.add("MainActivity: Отправлен широковещательный запрос FIND_PC");
+                AppLog.add("MainActivity: Широковещательный запрос успешно отправлен");
             } catch (Exception e) {
                 runOnUiThread(() -> tvPcIpHint.setText("Ошибка поиска: " + e.getMessage()));
-                AppLog.add("MainActivity: Ошибка поиска PC: " + e.getMessage());
+                AppLog.add("MainActivity: ОШИБКА отправки broadcast — " + e.getMessage());
             }
         }).start();
     }
@@ -176,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             AppLog.add("MainActivity: Настройки сохранены");
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Ошибка: проверьте числовые поля", Toast.LENGTH_SHORT).show();
-            AppLog.add("MainActivity: Ошибка сохранения настроек");
+            AppLog.add("MainActivity: Ошибка сохранения настроек — " + e.getMessage());
         }
     }
 
@@ -194,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissionsAndStartService() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Нет разрешения на микрофон!", Toast.LENGTH_LONG).show();
+            AppLog.add("MainActivity: ОШИБКА — нет разрешения на микрофон");
             checkPermissions();
             return;
         }

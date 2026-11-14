@@ -22,7 +22,7 @@
             android:id="@+id/tvVersion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Версия: 2.5"
+            android:text="Версия: 2.6"
             android:textSize="14sp"
             android:textColor="#666666"
             android:gravity="center"
