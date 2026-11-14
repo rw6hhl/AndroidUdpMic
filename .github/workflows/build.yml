@@ -42,16 +42,16 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-V1.8.apk
+        path: app/build/outputs/apk/debug/app-V1.9.apk
 
-    # СОЗДАЕМ РЕЛИЗ (вместо git push)
+    # СОЗДАЕМ РЕЛИЗ
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v1.8
-        name: Release V1.8
+        tag_name: v1.9
+        name: Release V1.9
         draft: false
         prerelease: false
-        files: app/build/outputs/apk/debug/app-V1.8.apk
+        files: app/build/outputs/apk/debug/app-V1.9.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

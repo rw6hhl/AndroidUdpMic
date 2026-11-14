@@ -19,10 +19,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText etCmdPort, etTargetIp, etTargetPort, etClientId;
-    private TextView tvStatus, tvVersion;
+    private TextView tvStatus, tvVersion, tvIpAddress;
     private SettingsManager settings;
 
     // Приемник статусов от службы
@@ -49,9 +55,18 @@ public class MainActivity extends AppCompatActivity {
         etClientId = findViewById(R.id.etClientId);
         tvStatus = findViewById(R.id.tvStatus);
         tvVersion = findViewById(R.id.tvVersion);
+        tvIpAddress = findViewById(R.id.tvIpAddress);
 
         // Устанавливаем версию из BuildConfig
         tvVersion.setText("Версия: " + BuildConfig.VERSION_NAME);
+
+        // Определяем IP-адрес
+        String ip = getLocalIpAddress();
+        if (ip != null) {
+            tvIpAddress.setText("Мой IP: " + ip);
+        } else {
+            tvIpAddress.setText("Мой IP: Не подключен к сети");
+        }
 
         // Загрузка сохраненных настроек
         etCmdPort.setText(String.valueOf(settings.getCmdPort()));
@@ -68,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogs = findViewById(R.id.btnLogs);
         btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
 
-        // Обработчик кнопки скачивания APK (теперь ведет на страницу Релизов)
+        // Обработчик кнопки скачивания APK
         Button btnDownloadApk = findViewById(R.id.btnDownloadApk);
         btnDownloadApk.setOnClickListener(v -> {
             String url = "https://github.com/rw6hhl/AndroidUdpMic/releases";
@@ -79,9 +94,35 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
+    /**
+     * Получает локальный IPv4-адрес устройства в локальной сети.
+     */
+    private String getLocalIpAddress() {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            AppLog.add("MainActivity: Ошибка получения IP — " + e.getMessage());
+        }
+        return null;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
+        // Обновляем IP на случай смены сети
+        String ip = getLocalIpAddress();
+        if (ip != null) {
+            tvIpAddress.setText("Мой IP: " + ip);
+        }
+
         // Регистрируем приемник статусов
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(statusReceiver, new IntentFilter("MIC_SERVICE_STATUS"), Context.RECEIVER_NOT_EXPORTED);
