@@ -18,7 +18,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        persist-credentials: false # Отключаем встроенные креды, чтобы не было конфликта
+        persist-credentials: false
         fetch-depth: 0
 
     - name: Set up JDK 17
@@ -46,16 +46,15 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-V1.5.apk
+        path: app/build/outputs/apk/debug/app-V1.6.apk
 
     - name: Copy APK to apk folder and Commit
       run: |
         mkdir -p apk
-        cp app/build/outputs/apk/debug/app-V1.5.apk apk/
+        cp app/build/outputs/apk/debug/app-V1.6.apk apk/
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "GitHub Actions"
         git add apk/
-        git commit -m "Auto-build: Add APK V1.5" || exit 0
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git commit -m "Auto-build: Add APK V1.6" || exit 0
+        git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+        git push origin main
