@@ -21,10 +21,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private EditText etCmdPort, etTargetIp, etTargetPort, etClientId;
-    private TextView tvStatus, tvVersion, tvIpAddress;
+    private TextView tvStatus, tvVersion, tvIpAddress, tvPcIpHint;
     private SettingsManager settings;
 
     private final BroadcastReceiver statusReceiver = new BroadcastReceiver() {
@@ -51,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
         tvStatus = findViewById(R.id.tvStatus);
         tvVersion = findViewById(R.id.tvVersion);
         tvIpAddress = findViewById(R.id.tvIpAddress);
+        tvPcIpHint = findViewById(R.id.tvPcIpHint);
 
         tvVersion.setText("Версия: " + BuildConfig.VERSION_NAME);
 
-        // Определяем IP через WifiManager (надежнее для Wi-Fi)
         updateWifiIp();
 
         etCmdPort.setText(String.valueOf(settings.getCmdPort()));
@@ -82,25 +88,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateWifiIp() {
+        String ip = getIpAddress();
+        if (ip != null) {
+            tvIpAddress.setText("Мой IP: " + ip);
+            AppLog.add("MainActivity: IP = " + ip);
+        } else {
+            tvIpAddress.setText("Мой IP: Не удалось определить");
+            AppLog.add("MainActivity: Не удалось получить IP");
+        }
+    }
+
+    private String getIpAddress() {
         try {
             WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
             if (wifiManager != null) {
                 int ipInt = wifiManager.getConnectionInfo().getIpAddress();
                 if (ipInt != 0) {
-                    String ip = Formatter.formatIpAddress(ipInt);
-                    tvIpAddress.setText("Мой Wi-Fi IP: " + ip);
-                    AppLog.add("MainActivity: Wi-Fi IP = " + ip);
-                } else {
-                    tvIpAddress.setText("Мой IP: Wi-Fi не подключен");
-                    AppLog.add("MainActivity: Wi-Fi IP не получен (0)");
+                    return Formatter.formatIpAddress(ipInt);
                 }
-            } else {
-                tvIpAddress.setText("Мой IP: Ошибка WifiManager");
             }
-        } catch (Exception e) {
-            tvIpAddress.setText("Мой IP: Ошибка");
-            AppLog.add("MainActivity: Ошибка получения IP — " + e.getMessage());
-        }
+        } catch (Exception ignored) { }
+
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception ignored) { }
+
+        return null;
     }
 
     @Override
