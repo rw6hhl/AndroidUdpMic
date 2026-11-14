@@ -1,7 +1,10 @@
 package com.rw6hhl.androidudpmic;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,8 +21,19 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     private EditText etCmdPort, etTargetIp, etTargetPort, etClientId;
-    private TextView tvStatus;
+    private TextView tvStatus, tvVersion;
     private SettingsManager settings;
+
+    // Приемник статусов от службы
+    private final BroadcastReceiver statusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String status = intent.getStringExtra("status_text");
+            if (status != null) {
+                tvStatus.setText("Статус: " + status);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
         etTargetPort = findViewById(R.id.etTargetPort);
         etClientId = findViewById(R.id.etClientId);
         tvStatus = findViewById(R.id.tvStatus);
+        tvVersion = findViewById(R.id.tvVersion);
+
+        // Устанавливаем версию из BuildConfig
+        tvVersion.setText("Версия: " + BuildConfig.VERSION_NAME);
 
         // Загрузка сохраненных настроек
         etCmdPort.setText(String.valueOf(settings.getCmdPort()));
@@ -50,6 +68,23 @@ public class MainActivity extends AppCompatActivity {
         btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
 
         checkPermissions();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Регистрируем приемник статусов
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(statusReceiver, new IntentFilter("MIC_SERVICE_STATUS"), Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(statusReceiver, new IntentFilter("MIC_SERVICE_STATUS"));
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(statusReceiver);
     }
 
     private void saveSettings() {
@@ -90,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startService(intent);
         }
-        tvStatus.setText("Статус: Служба запущена. Можно свернуть приложение.");
+        tvStatus.setText("Статус: Служба запущена. Ожидание команд.");
         Toast.makeText(this, "Служба запущена в фоне", Toast.LENGTH_SHORT).show();
         AppLog.add("MainActivity: Служба запущена пользователем");
     }

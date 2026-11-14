@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
@@ -40,6 +41,7 @@ public class MicService extends Service {
 
         startForeground(1, notification);
         AppLog.add("MicService: Служба запущена в foreground");
+        sendStatusBroadcast("Ожидание команд");
 
         udpNetwork = new UdpNetwork(
                 settings.getCmdPort(),
@@ -54,12 +56,14 @@ public class MicService extends Service {
             @Override
             public void onStartCommand() {
                 AppLog.add("MicService: Получена команда YES, запуск записи");
+                sendStatusBroadcast("Команда получена. Отправка звука начата.");
                 audioRecorder.startRecording();
             }
 
             @Override
             public void onStopCommand() {
                 AppLog.add("MicService: Получена команда NO, остановка записи");
+                sendStatusBroadcast("Команда получена. Отправка звука остановлена.");
                 audioRecorder.stopRecording();
             }
         });
@@ -96,5 +100,13 @@ public class MicService extends Service {
                 manager.createNotificationChannel(serviceChannel);
             }
         }
+    }
+
+    // Метод для отправки статуса в MainActivity
+    private void sendStatusBroadcast(String statusText) {
+        Intent intent = new Intent("MIC_SERVICE_STATUS");
+        intent.putExtra("status_text", statusText);
+        intent.setPackage(getPackageName());
+        sendBroadcast(intent);
     }
 }
