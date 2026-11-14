@@ -1,0 +1,91 @@
+package com.rw6hhl.androidudpmic;
+
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+public class MainActivity extends AppCompatActivity {
+
+    private EditText etCmdPort, etTargetIp, etTargetPort, etClientId;
+    private TextView tvStatus;
+    private SettingsManager settings;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        settings = new SettingsManager(this);
+
+        etCmdPort = findViewById(R.id.etCmdPort);
+        etTargetIp = findViewById(R.id.etTargetIp);
+        etTargetPort = findViewById(R.id.etTargetPort);
+        etClientId = findViewById(R.id.etClientId);
+        tvStatus = findViewById(R.id.tvStatus);
+
+        // Загрузка сохраненных настроек
+        etCmdPort.setText(String.valueOf(settings.getCmdPort()));
+        etTargetIp.setText(settings.getTargetIp());
+        etTargetPort.setText(String.valueOf(settings.getTargetPort()));
+        etClientId.setText(String.valueOf(settings.getClientId()));
+
+        Button btnSave = findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(v -> saveSettings());
+
+        Button btnStartService = findViewById(R.id.btnStartService);
+        btnStartService.setOnClickListener(v -> checkPermissionsAndStartService());
+
+        checkPermissions();
+    }
+
+    private void saveSettings() {
+        try {
+            settings.setCmdPort(Integer.parseInt(etCmdPort.getText().toString()));
+            settings.setTargetIp(etTargetIp.getText().toString());
+            settings.setTargetPort(Integer.parseInt(etTargetPort.getText().toString()));
+            settings.setClientId(Integer.parseInt(etClientId.getText().toString()));
+            Toast.makeText(this, "Настройки сохранены", Toast.LENGTH_SHORT).show();
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Ошибка: проверьте числовые поля", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+            }
+        }
+    }
+
+    private void checkPermissionsAndStartService() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Нет разрешения на микрофон!", Toast.LENGTH_LONG).show();
+            checkPermissions();
+            return;
+        }
+        
+        Intent intent = new Intent(this, MicService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+        tvStatus.setText("Статус: Служба запущена. Можно свернуть приложение.");
+        Toast.makeText(this, "Служба запущена в фоне", Toast.LENGTH_SHORT).show();
+    }
+}

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Настройки UDP Микрофона"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etCmdPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Порт приема команд (44444)"
+        android:inputType="number"
+        android:text="44444" />
+
+    <EditText
+        android:id="@+id/etTargetIp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="IP назначения (127.0.0.1)"
+        android:inputType="text"
+        android:text="127.0.0.1" />
+
+    <EditText
+        android:id="@+id/etTargetPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Порт назначения (55555)"
+        android:inputType="number"
+        android:text="55555" />
+        
+    <EditText
+        android:id="@+id/etClientId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Идентификатор клиента (10001)"
+        android:inputType="number"
+        android:text="10001" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Сохранить настройки" />
+
+    <Button
+        android:id="@+id/btnStartService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Запустить службу в фоне" />
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Статус: Ожидание"
+        android:textSize="16sp" />
+
+</LinearLayout>
