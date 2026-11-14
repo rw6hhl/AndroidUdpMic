@@ -45,28 +45,28 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-V2.1.apk
+        path: app/build/outputs/apk/debug/app-V2.3.apk
 
     # 2. СОЗДАЕМ РЕЛИЗ
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: v2.1
-        name: Release V2.1
+        tag_name: v2.3
+        name: Release V2.3
         draft: false
         prerelease: false
-        files: app/build/outputs/apk/debug/app-V2.1.apk
+        files: app/build/outputs/apk/debug/app-V2.3.apk
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 3. СОХРАНЯЕМ В ПАПКУ APK (с использованием явного токена)
+    # 3. СОХРАНЯЕМ В ПАПКУ APK
     - name: Copy APK to apk folder and Commit
       run: |
         mkdir -p apk
-        cp app/build/outputs/apk/debug/app-V2.1.apk apk/
+        cp app/build/outputs/apk/debug/app-V2.3.apk apk/
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "GitHub Actions"
         git add apk/
-        git commit -m "Auto-build: Add APK V2.1" || exit 0
+        git commit -m "Auto-build: Add APK V2.3" || exit 0
         git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
         git push origin main
