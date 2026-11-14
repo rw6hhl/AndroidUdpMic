@@ -21,8 +21,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.net.Inet4Address;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +86,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(browserIntent);
         });
 
+        Button btnFindPc = findViewById(R.id.btnFindPc);
+        btnFindPc.setOnClickListener(v -> findPc());
+
         checkPermissions();
     }
 
@@ -122,6 +127,25 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception ignored) { }
 
         return null;
+    }
+
+    private void findPc() {
+        new Thread(() -> {
+            try {
+                DatagramSocket socket = new DatagramSocket();
+                socket.setBroadcast(true);
+                byte[] sendData = "FIND_PC".getBytes();
+                DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                        InetAddress.getByName("255.255.255.255"), 51116);
+                socket.send(sendPacket);
+                socket.close();
+                runOnUiThread(() -> tvPcIpHint.setText("Запрос отправлен. Ожидайте IP..."));
+                AppLog.add("MainActivity: Отправлен широковещательный запрос FIND_PC");
+            } catch (Exception e) {
+                runOnUiThread(() -> tvPcIpHint.setText("Ошибка поиска: " + e.getMessage()));
+                AppLog.add("MainActivity: Ошибка поиска PC: " + e.getMessage());
+            }
+        }).start();
     }
 
     @Override
