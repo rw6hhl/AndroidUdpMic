@@ -10,10 +10,11 @@ android {
         applicationId "com.rw6hhl.androidudpmic"
         minSdk 26
         targetSdk 34
-        versionCode 13
-        versionName "2.2"
+        versionCode 15
+        versionName "2.4"
     }
 
+    // Переименование выходного файла APK
     android.applicationVariants.all { variant ->
         variant.outputs.all {
             outputFileName = "app-V${variant.versionName}.apk"
