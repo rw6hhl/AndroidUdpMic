@@ -36,8 +36,18 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
-    - name: Upload APK
+    - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        path: app/build/outputs/apk/debug/app-V1.4.apk # Исправлен путь под новое имя файла
+
+    - name: Copy APK to apk folder and Commit
+      run: |
+        mkdir -p apk
+        cp app/build/outputs/apk/debug/app-V1.4.apk apk/
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "GitHub Actions"
+        git add apk/
+        git commit -m "Auto-build: Add APK V1.4" || exit 0
+        git push
