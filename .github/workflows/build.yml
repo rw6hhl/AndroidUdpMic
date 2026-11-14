@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch: # Позволяет запускать сборку вручную
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,8 +22,13 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper
+    - name: Setup Gradle 8.2
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.2'
+
+    - name: Generate Gradle Wrapper for 8.2
+      run: gradle wrapper --gradle-version 8.2
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
