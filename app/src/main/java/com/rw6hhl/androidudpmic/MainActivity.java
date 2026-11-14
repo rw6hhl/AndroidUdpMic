@@ -7,8 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,19 +21,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Collections;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     private EditText etCmdPort, etTargetIp, etTargetPort, etClientId;
     private TextView tvStatus, tvVersion, tvIpAddress;
     private SettingsManager settings;
 
-    // Приемник статусов от службы
     private final BroadcastReceiver statusReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -57,18 +52,11 @@ public class MainActivity extends AppCompatActivity {
         tvVersion = findViewById(R.id.tvVersion);
         tvIpAddress = findViewById(R.id.tvIpAddress);
 
-        // Устанавливаем версию из BuildConfig
         tvVersion.setText("Версия: " + BuildConfig.VERSION_NAME);
 
-        // Определяем IP-адрес
-        String ip = getLocalIpAddress();
-        if (ip != null) {
-            tvIpAddress.setText("Мой IP: " + ip);
-        } else {
-            tvIpAddress.setText("Мой IP: Не подключен к сети");
-        }
+        // Определяем IP через WifiManager (надежнее для Wi-Fi)
+        updateWifiIp();
 
-        // Загрузка сохраненных настроек
         etCmdPort.setText(String.valueOf(settings.getCmdPort()));
         etTargetIp.setText(settings.getTargetIp());
         etTargetPort.setText(String.valueOf(settings.getTargetPort()));
@@ -83,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogs = findViewById(R.id.btnLogs);
         btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
 
-        // Обработчик кнопки скачивания APK
         Button btnDownloadApk = findViewById(R.id.btnDownloadApk);
         btnDownloadApk.setOnClickListener(v -> {
             String url = "https://github.com/rw6hhl/AndroidUdpMic/releases";
@@ -94,36 +81,33 @@ public class MainActivity extends AppCompatActivity {
         checkPermissions();
     }
 
-    /**
-     * Получает локальный IPv4-адрес устройства в локальной сети.
-     */
-    private String getLocalIpAddress() {
+    private void updateWifiIp() {
         try {
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface intf : interfaces) {
-                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    if (!addr.isLoopbackAddress() && addr instanceof Inet4Address) {
-                        return addr.getHostAddress();
-                    }
+            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager != null) {
+                int ipInt = wifiManager.getConnectionInfo().getIpAddress();
+                if (ipInt != 0) {
+                    String ip = Formatter.formatIpAddress(ipInt);
+                    tvIpAddress.setText("Мой Wi-Fi IP: " + ip);
+                    AppLog.add("MainActivity: Wi-Fi IP = " + ip);
+                } else {
+                    tvIpAddress.setText("Мой IP: Wi-Fi не подключен");
+                    AppLog.add("MainActivity: Wi-Fi IP не получен (0)");
                 }
+            } else {
+                tvIpAddress.setText("Мой IP: Ошибка WifiManager");
             }
         } catch (Exception e) {
+            tvIpAddress.setText("Мой IP: Ошибка");
             AppLog.add("MainActivity: Ошибка получения IP — " + e.getMessage());
         }
-        return null;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Обновляем IP на случай смены сети
-        String ip = getLocalIpAddress();
-        if (ip != null) {
-            tvIpAddress.setText("Мой IP: " + ip);
-        }
+        updateWifiIp();
 
-        // Регистрируем приемник статусов
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(statusReceiver, new IntentFilter("MIC_SERVICE_STATUS"), Context.RECEIVER_NOT_EXPORTED);
         } else {
