@@ -46,8 +46,9 @@ public class UdpNetwork {
             cmdSocket = new DatagramSocket(cmdPort);
             sendSocket = new DatagramSocket();
             targetAddress = InetAddress.getByName(targetIp);
+            AppLog.add("UdpNetwork: Ожидание команд на порту " + cmdPort + ", передача на " + targetIp + ":" + targetPort);
         } catch (SocketException | UnknownHostException e) {
-            Log.e(TAG, "Ошибка создания сокетов: " + e.getMessage());
+            AppLog.add("UdpNetwork: ОШИБКА создания сокетов: " + e.getMessage());
             return;
         }
 
@@ -60,17 +61,18 @@ public class UdpNetwork {
                         DatagramPacket packet = new DatagramPacket(buf, buf.length);
                         cmdSocket.receive(packet);
                         String cmd = new String(packet.getData(), 0, packet.getLength()).trim().toLowerCase();
+                        String ip = packet.getAddress().getHostAddress();
+                        
+                        AppLog.add("UdpNetwork: Получена команда '" + cmd + "' от " + ip);
                         
                         if (cmd.equals("yes")) {
-                            Log.d(TAG, "Получена команда YES");
                             if (listener != null) listener.onStartCommand();
                         } else if (cmd.equals("no")) {
-                            Log.d(TAG, "Получена команда NO");
                             if (listener != null) listener.onStopCommand();
                         }
                     } catch (IOException e) {
                         if (isListening) {
-                            Log.e(TAG, "Ошибка приема команды: " + e.getMessage());
+                            AppLog.add("UdpNetwork: Ошибка приема команды: " + e.getMessage());
                         }
                     }
                 }
@@ -90,14 +92,13 @@ public class UdpNetwork {
         if (listenThread != null) {
             listenThread.interrupt();
         }
+        AppLog.add("UdpNetwork: Служба остановлена");
     }
 
     public void sendAudio(byte[] audioData, int length) {
         if (targetAddress == null || sendSocket == null || sendSocket.isClosed()) return;
 
         try {
-            // Формируем пакет: 4 байта заголовка + аудио
-            // Как в pmr.c: command=21, kanal=0, client=clientId
             ByteBuffer buffer = ByteBuffer.allocate(4 + length);
             buffer.order(ByteOrder.LITTLE_ENDIAN);
             
@@ -111,7 +112,7 @@ public class UdpNetwork {
                     buffer.array(), buffer.position(), targetAddress, targetPort);
             sendSocket.send(packet);
         } catch (IOException e) {
-            Log.e(TAG, "Ошибка отправки аудио: " + e.getMessage());
+            AppLog.add("UdpNetwork: Ошибка отправки аудио: " + e.getMessage());
         }
     }
 }

@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Разрешения для сети и записи звука -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -30,12 +29,26 @@
             </intent-filter>
         </activity>
 
-        <!-- Сервис для фоновой работы -->
+        <activity
+            android:name=".LogActivity"
+            android:exported="false" />
+
         <service
             android:name=".MicService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+            
+        <!-- FileProvider для отправки логов -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
             
     </application>
 

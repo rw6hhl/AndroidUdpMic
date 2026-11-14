@@ -1,71 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Настройки UDP Микрофона"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etCmdPort"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Порт приема команд (44444)"
-        android:inputType="number"
-        android:text="44444" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Настройки UDP Микрофона"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"/>
 
-    <EditText
-        android:id="@+id/etTargetIp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="IP назначения (127.0.0.1)"
-        android:inputType="text"
-        android:text="127.0.0.1" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Порт для приема команд (UDP):"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+        <EditText
+            android:id="@+id/etCmdPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="44444"
+            android:inputType="number"
+            android:layout_marginBottom="12dp" />
 
-    <EditText
-        android:id="@+id/etTargetPort"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Порт назначения (55555)"
-        android:inputType="number"
-        android:text="55555" />
-        
-    <EditText
-        android:id="@+id/etClientId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Идентификатор клиента (10001)"
-        android:inputType="number"
-        android:text="10001" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="IP-адрес назначения:"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+        <EditText
+            android:id="@+id/etTargetIp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="127.0.0.1"
+            android:inputType="text"
+            android:layout_marginBottom="12dp" />
 
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Сохранить настройки" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Порт назначения (куда слать звук):"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+        <EditText
+            android:id="@+id/etTargetPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="55555"
+            android:inputType="number"
+            android:layout_marginBottom="12dp" />
+            
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Идентификатор клиента (Client ID):"
+            android:textSize="14sp"
+            android:textColor="#666666" />
+        <EditText
+            android:id="@+id/etClientId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="10001"
+            android:inputType="number"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/btnStartService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Запустить службу в фоне" />
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="СОХРАНИТЬ НАСТРОЙКИ"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Статус: Ожидание"
-        android:textSize="16sp" />
+        <Button
+            android:id="@+id/btnStartService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ЗАПУСТИТЬ СЛУЖБУ В ФОНЕ"
+            android:layout_marginBottom="16dp"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/btnLogs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ПОКАЗАТЬ ЛОГИ РАБОТЫ"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Статус: Ожидание"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</ScrollView>

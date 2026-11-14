@@ -3,16 +3,12 @@ package com.rw6hhl.androidudpmic;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 public class AudioRecorder {
 
-    private static final String TAG = "AudioRecorder";
     private static final int SAMPLE_RATE = 16000;
     private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-
-    // 320 сэмплов * 2 байта = 640 байт (как в pmr.c)
     private static final int BUFFER_SIZE_BYTES = 640;
 
     private final UdpNetwork udpNetwork;
@@ -36,12 +32,13 @@ public class AudioRecorder {
                 SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, minBufferSize);
 
         if (audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-            Log.e(TAG, "Ошибка инициализации AudioRecord");
+            AppLog.add("AudioRecorder: ОШИБКА инициализации AudioRecord");
             return;
         }
 
         isRecording = true;
         audioRecord.startRecording();
+        AppLog.add("AudioRecorder: Запись началась");
 
         recordingThread = new Thread(new Runnable() {
             @Override
@@ -50,25 +47,24 @@ public class AudioRecorder {
                 while (isRecording) {
                     int read = audioRecord.read(buffer, 0, buffer.length);
                     if (read > 0) {
-                        // Передаем 640 байт чистого звука
                         udpNetwork.sendAudio(buffer, read);
                     }
                 }
             }
         });
         recordingThread.start();
-        Log.d(TAG, "Запись началась");
     }
 
     public void stopRecording() {
         if (!isRecording) return;
         isRecording = false;
+        AppLog.add("AudioRecorder: Запись остановлена");
 
         if (audioRecord != null) {
             try {
                 audioRecord.stop();
             } catch (IllegalStateException e) {
-                Log.e(TAG, "Ошибка остановки записи: " + e.getMessage());
+                AppLog.add("AudioRecorder: Ошибка остановки: " + e.getMessage());
             }
             audioRecord.release();
             audioRecord = null;
@@ -78,10 +74,9 @@ public class AudioRecorder {
             try {
                 recordingThread.join();
             } catch (InterruptedException e) {
-                Log.e(TAG, "Ошибка ожидания потока: " + e.getMessage());
+                AppLog.add("AudioRecorder: Ошибка ожидания потока: " + e.getMessage());
             }
             recordingThread = null;
         }
-        Log.d(TAG, "Запись остановлена");
     }
 }

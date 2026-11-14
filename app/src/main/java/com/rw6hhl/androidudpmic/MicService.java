@@ -22,6 +22,7 @@ public class MicService extends Service {
         super.onCreate();
         createNotificationChannel();
         settings = new SettingsManager(this);
+        AppLog.add("MicService: onCreate");
     }
 
     @Override
@@ -38,8 +39,8 @@ public class MicService extends Service {
                 .build();
 
         startForeground(1, notification);
+        AppLog.add("MicService: Служба запущена в foreground");
 
-        // Инициализация компонентов
         udpNetwork = new UdpNetwork(
                 settings.getCmdPort(),
                 settings.getTargetIp(),
@@ -49,15 +50,16 @@ public class MicService extends Service {
 
         audioRecorder = new AudioRecorder(udpNetwork);
 
-        // Запускаем прослушивание UDP команд
         udpNetwork.startListening(new UdpNetwork.CommandListener() {
             @Override
             public void onStartCommand() {
+                AppLog.add("MicService: Получена команда YES, запуск записи");
                 audioRecorder.startRecording();
             }
 
             @Override
             public void onStopCommand() {
+                AppLog.add("MicService: Получена команда NO, остановка записи");
                 audioRecorder.stopRecording();
             }
         });
@@ -68,6 +70,7 @@ public class MicService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        AppLog.add("MicService: onDestroy, служба остановлена");
         if (udpNetwork != null) {
             udpNetwork.stopListening();
         }

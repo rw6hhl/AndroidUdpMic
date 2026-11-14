@@ -46,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
         Button btnStartService = findViewById(R.id.btnStartService);
         btnStartService.setOnClickListener(v -> checkPermissionsAndStartService());
 
+        Button btnLogs = findViewById(R.id.btnLogs);
+        btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
+
         checkPermissions();
     }
 
@@ -56,8 +59,10 @@ public class MainActivity extends AppCompatActivity {
             settings.setTargetPort(Integer.parseInt(etTargetPort.getText().toString()));
             settings.setClientId(Integer.parseInt(etClientId.getText().toString()));
             Toast.makeText(this, "Настройки сохранены", Toast.LENGTH_SHORT).show();
+            AppLog.add("MainActivity: Настройки сохранены");
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Ошибка: проверьте числовые поля", Toast.LENGTH_SHORT).show();
+            AppLog.add("MainActivity: Ошибка сохранения настроек");
         }
     }
 
@@ -87,5 +92,6 @@ public class MainActivity extends AppCompatActivity {
         }
         tvStatus.setText("Статус: Служба запущена. Можно свернуть приложение.");
         Toast.makeText(this, "Служба запущена в фоне", Toast.LENGTH_SHORT).show();
+        AppLog.add("MainActivity: Служба запущена пользователем");
     }
 }
