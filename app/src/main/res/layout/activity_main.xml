@@ -22,7 +22,7 @@
             android:id="@+id/tvVersion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Версия: 1.7"
+            android:text="Версия: 1.8"
             android:textSize="14sp"
             android:textColor="#666666"
             android:gravity="center"
@@ -105,7 +105,7 @@
             android:text="ПОКАЗАТЬ ЛОГИ РАБОТЫ"
             android:layout_marginBottom="8dp"/>
 
-        <!-- Новая кнопка для скачивания APK с GitHub -->
+        <!-- Новая кнопка для скачивания APK с GitHub (ведет на страницу релизов) -->
         <Button
             android:id="@+id/btnDownloadApk"
             android:layout_width="match_parent"

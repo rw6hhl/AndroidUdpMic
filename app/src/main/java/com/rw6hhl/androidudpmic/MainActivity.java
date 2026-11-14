@@ -68,10 +68,10 @@ public class MainActivity extends AppCompatActivity {
         Button btnLogs = findViewById(R.id.btnLogs);
         btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
 
-        // Обработчик новой кнопки скачивания APK
+        // Обработчик кнопки скачивания APK (теперь ведет на страницу Релизов)
         Button btnDownloadApk = findViewById(R.id.btnDownloadApk);
         btnDownloadApk.setOnClickListener(v -> {
-            String url = "https://github.com/rw6hhl/AndroidUdpMic/tree/main/apk";
+            String url = "https://github.com/rw6hhl/AndroidUdpMic/releases";
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(browserIntent);
         });

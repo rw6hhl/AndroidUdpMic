@@ -3,12 +3,10 @@ name: Build APK
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write # Дает право создавать релизы
 
 jobs:
   build:
@@ -17,9 +15,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        persist-credentials: false
-        fetch-depth: 0
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -42,19 +37,21 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug
 
+    # Сохраняем APK как артефакт (для истории)
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-V1.7.apk
+        path: app/build/outputs/apk/debug/app-V1.8.apk
 
-    - name: Copy APK to apk folder and Commit
-      run: |
-        mkdir -p apk
-        cp app/build/outputs/apk/debug/app-V1.7.apk apk/
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "GitHub Actions"
-        git add apk/
-        git commit -m "Auto-build: Add APK V1.7" || exit 0
-        git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
-        git push origin main
+    # СОЗДАЕМ РЕЛИЗ (вместо git push)
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v1.8
+        name: Release V1.8
+        draft: false
+        prerelease: false
+        files: app/build/outputs/apk/debug/app-V1.8.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
