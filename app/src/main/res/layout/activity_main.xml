@@ -22,7 +22,7 @@
             android:id="@+id/tvVersion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Версия: 1.6"
+            android:text="Версия: 1.7"
             android:textSize="14sp"
             android:textColor="#666666"
             android:gravity="center"
@@ -96,13 +96,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ЗАПУСТИТЬ СЛУЖБУ В ФОНЕ"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="8dp"/>
 
         <Button
             android:id="@+id/btnLogs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ПОКАЗАТЬ ЛОГИ РАБОТЫ"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Новая кнопка для скачивания APK с GitHub -->
+        <Button
+            android:id="@+id/btnDownloadApk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="СКАЧАТЬ APK С GITHUB"
             android:layout_marginBottom="16dp"/>
 
         <TextView

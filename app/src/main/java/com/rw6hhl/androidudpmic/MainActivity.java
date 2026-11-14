@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -66,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnLogs = findViewById(R.id.btnLogs);
         btnLogs.setOnClickListener(v -> startActivity(new Intent(this, LogActivity.class)));
+
+        // Обработчик новой кнопки скачивания APK
+        Button btnDownloadApk = findViewById(R.id.btnDownloadApk);
+        btnDownloadApk.setOnClickListener(v -> {
+            String url = "https://github.com/rw6hhl/AndroidUdpMic/tree/main/apk";
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(browserIntent);
+        });
 
         checkPermissions();
     }

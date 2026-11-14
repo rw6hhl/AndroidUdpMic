@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # Явно разрешаем запись в репозиторий
+  contents: write
 
 jobs:
   build:
@@ -46,15 +46,15 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: AndroidUdpMic-Debug
-        path: app/build/outputs/apk/debug/app-V1.6.apk
+        path: app/build/outputs/apk/debug/app-V1.7.apk
 
     - name: Copy APK to apk folder and Commit
       run: |
         mkdir -p apk
-        cp app/build/outputs/apk/debug/app-V1.6.apk apk/
+        cp app/build/outputs/apk/debug/app-V1.7.apk apk/
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "GitHub Actions"
         git add apk/
-        git commit -m "Auto-build: Add APK V1.6" || exit 0
+        git commit -m "Auto-build: Add APK V1.7" || exit 0
         git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
         git push origin main
